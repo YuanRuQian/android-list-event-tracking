@@ -1,5 +1,6 @@
 package lydia.yuan.viewslisteventtracking
 
+import androidx.lifecycle.MutableLiveData
 import com.pokemon.GetPokemonsQuery
 import dagger.Module
 import dagger.Provides
@@ -11,8 +12,8 @@ import dagger.hilt.components.SingletonComponent
 object DataModule {
 
     @Provides
-    fun providePokemons(): List<GetPokemonsQuery.Result> {
+    fun providePokemons(): MutableLiveData<MutableList<GetPokemonsQuery.Result>> {
         // Provide the list of Pokémon results here
-        return emptyList() // or fetch from some data source
+        return MutableLiveData()
     }
 }

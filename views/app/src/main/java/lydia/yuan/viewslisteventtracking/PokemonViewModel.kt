@@ -19,10 +19,37 @@ class PokemonViewModel @Inject constructor(
     private val apolloClient: ApolloClient
 ) : ViewModel() {
 
+    private val _checkedOutPokemonIds = mutableSetOf<Int>()
+    private val _checkedOutPokemonIdsLiveData = MutableLiveData<Set<Int>>()
+
+    val checkedOutPokemonIdsLiveData: LiveData<Set<Int>> = _checkedOutPokemonIdsLiveData
+
+    fun isPokemonCheckedOut(pokemonId: Int): Boolean {
+        return _checkedOutPokemonIds.contains(pokemonId)
+    }
+
+    fun logPokemonCheckout(pokemonId: Int) {
+        Log.d("PokemonViewModel", "Checked out Pokémon with ID: $pokemonId, pokemon info: ${_pokemonList.value?.find { it.id == pokemonId }}")
+    }
+
+    fun checkoutPokemon(pokemonId: Int) {
+        _checkedOutPokemonIds.add(pokemonId)
+        _checkedOutPokemonIdsLiveData.value = _checkedOutPokemonIds
+    }
+
+    fun uncheckoutPokemon(pokemonId: Int) {
+        _checkedOutPokemonIds.remove(pokemonId)
+        _checkedOutPokemonIdsLiveData.value = _checkedOutPokemonIds
+    }
+
     private val _pokemonList = MutableLiveData<List<GetPokemonsQuery.Result>>(emptyList())
     val pokemonList: LiveData<List<GetPokemonsQuery.Result>> = _pokemonList
 
     private var offset: Int? = 0
+
+    fun setPokemonList(pokemonList: List<GetPokemonsQuery.Result>) {
+        _pokemonList.value = pokemonList
+    }
 
     fun fetchNextPagePokemonList() {
         if (offset == null) {

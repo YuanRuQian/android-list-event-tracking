@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import lydia.yuan.viewslisteventtracking.databinding.FragmentPokemonListBinding
 import javax.inject.Inject
@@ -19,10 +21,10 @@ class PokemonListFragment : Fragment() {
     private var _binding: FragmentPokemonListBinding? = null
     private val binding get() = _binding!!
 
-    @Inject
-    lateinit var pokemonAdapter: PokemonAdapter
+    private lateinit var pokemonAdapter: PokemonAdapter
 
     private val pokemonViewModel: PokemonViewModel by viewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,20 +38,29 @@ class PokemonListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        pokemonAdapter = PokemonAdapter(
+            dataSet = pokemonViewModel.pokemonList.value?.toMutableList() ?: mutableListOf(),
+            isPokemonCheckedOut = pokemonViewModel::isPokemonCheckedOut,
+            checkoutPokemon = pokemonViewModel::checkoutPokemon,
+            logPokemonCheckout = pokemonViewModel::logPokemonCheckout
+        )
+
         binding.pokemonRecyclerView.apply {
             adapter = pokemonAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
 
-        // Fetch Pokémon data
         lifecycleScope.launchWhenResumed {
+            // uncomment this line to dynamically fetch data
             pokemonViewModel.fetchNextPagePokemonList()
+            // uncomment this line to use static test data due to limitation of test API's restrictions on the number of requests per minute
+            // pokemonViewModel.setPokemonList(TEST_DATA)
         }
 
         pokemonViewModel.pokemonList.observe(viewLifecycleOwner) {
             it?.let {
                 Log.d("PokemonListFragment", "update adapter with new data: $it")
-                pokemonAdapter = PokemonAdapter(it)
+                pokemonAdapter.updateDataSet(it.toMutableList())
                 binding.pokemonRecyclerView.apply {
                     adapter = pokemonAdapter
                     // layoutManager = LinearLayoutManager(requireContext())
