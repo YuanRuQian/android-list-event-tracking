@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.apollographql.apollo3") version "4.0.0-beta.5"
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -17,6 +19,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
 
     buildTypes {
         release {
@@ -40,6 +43,13 @@ android {
 }
 
 dependencies {
+    implementation(libs.logging.interceptor)
+    implementation(libs.picasso)
+    implementation(libs.androidx.fragment.ktx.v170beta01)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx.v280alpha03)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
     implementation(libs.apollo.runtime.v400beta5)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -62,4 +72,9 @@ apollo {
             schemaFile.set(file("src/main/graphql/com/pokemon/schema.graphqls"))
         }
     }
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

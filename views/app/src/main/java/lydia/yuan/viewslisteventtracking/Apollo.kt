@@ -1,26 +1,32 @@
 package lydia.yuan.viewslisteventtracking
 
-import android.content.Context
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.network.okHttpClient
-import okhttp3.Interceptor
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.logging.HttpLoggingInterceptor.Level
+import javax.inject.Singleton
 
-private var instance: ApolloClient? = null
+@Module
+@InstallIn(SingletonComponent::class)
+object NetworkModule {
+    @Provides
+    @Singleton
+    fun provideApolloClient(): ApolloClient {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.setLevel(Level.BODY) // Change the log level as needed
 
-fun apolloClient(context: Context): ApolloClient {
-    if (instance != null) {
-        return instance!!
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+        return ApolloClient.Builder()
+            .serverUrl("https://graphql-pokeapi.vercel.app/api/graphql")
+            .okHttpClient(okHttpClient)
+            .build()
     }
-
-    val okHttpClient = OkHttpClient.Builder()
-        .build()
-
-    instance = ApolloClient.Builder()
-        .serverUrl("https://graphql-pokeapi.vercel.app/api/graphql")
-        .okHttpClient(okHttpClient)
-        .build()
-
-    return instance!!
 }
