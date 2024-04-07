@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.paging.runtime)
     implementation(libs.logging.interceptor)
     implementation(libs.picasso)
     implementation(libs.androidx.fragment.ktx.v170beta01)

@@ -1,79 +1,45 @@
 package lydia.yuan.viewslisteventtracking
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.exception.ApolloException
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.pokemon.GetPokemonsQuery
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+
+private const val ITEMS_PER_PAGE = 20
 
 @HiltViewModel
 class PokemonViewModel @Inject constructor(
-    private val apolloClient: ApolloClient
+    private val repository: PokemonRepository
 ) : ViewModel() {
 
-    private val _checkedOutPokemonIds = mutableSetOf<Int>()
-    private val _checkedOutPokemonIdsLiveData = MutableLiveData<Set<Int>>()
+    private val recordedIds = mutableSetOf<Int>()
 
-    val checkedOutPokemonIdsLiveData: LiveData<Set<Int>> = _checkedOutPokemonIdsLiveData
-
-    fun isPokemonCheckedOut(pokemonId: Int): Boolean {
-        return _checkedOutPokemonIds.contains(pokemonId)
+    fun isPokemonCheckedOut(id: Int): Boolean {
+        return recordedIds.contains(id)
     }
 
-    fun logPokemonCheckout(pokemonId: Int) {
-        Log.d("PokemonViewModel", "Checked out Pokémon with ID: $pokemonId, pokemon info: ${_pokemonList.value?.find { it.id == pokemonId }}")
+    fun checkoutPokemon(id: Int) {
+        recordedIds.add(id)
     }
 
-    fun checkoutPokemon(pokemonId: Int) {
-        _checkedOutPokemonIds.add(pokemonId)
-        _checkedOutPokemonIdsLiveData.value = _checkedOutPokemonIds
+    fun logPokemonCheckout(pokemon: GetPokemonsQuery.Result) {
+        Log.d("Pokemon", "Pokemon ${pokemon.name} checked out")
     }
 
-    fun uncheckoutPokemon(pokemonId: Int) {
-        _checkedOutPokemonIds.remove(pokemonId)
-        _checkedOutPokemonIdsLiveData.value = _checkedOutPokemonIds
-    }
-
-    private val _pokemonList = MutableLiveData<List<GetPokemonsQuery.Result>>(emptyList())
-    val pokemonList: LiveData<List<GetPokemonsQuery.Result>> = _pokemonList
-
-    private var offset: Int? = 0
-
-    fun setPokemonList(pokemonList: List<GetPokemonsQuery.Result>) {
-        _pokemonList.value = pokemonList
-    }
-
-    fun fetchNextPagePokemonList() {
-        if (offset == null) {
-            return
-        }
-        viewModelScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    apolloClient.query(GetPokemonsQuery(limit = 10, offset = offset!!)).execute()
-                }
-                if (response.hasErrors()) {
-                    Log.e("PokemonViewModel", "Error: ${response.errors}")
-                } else {
-                    val newPokemonsData = response.data?.pokemons?.results?.filterNotNull()
-                    _pokemonList.value = _pokemonList.value?.plus((newPokemonsData ?: emptyList()))
-                    offset = response.data?.pokemons?.nextOffset
-                    Log.d("PokemonViewModel", "Fetched ${newPokemonsData?.size} Pokémon")
-                    Log.d("PokemonViewModel", "Total Pokémon: ${_pokemonList.value?.size}")
-                    Log.d("PokemonViewModel", "Next offset: $offset")
-                    Log.d("PokemonViewModel", "Pokémon: ${_pokemonList.value}")
-                }
-            } catch (e: ApolloException) {
-                Log.e("PokemonViewModel", "Error: ${e.message}")
-            }
-        }
-    }
+    val pokemons: Flow<PagingData<GetPokemonsQuery.Result>> = Pager(
+        config = PagingConfig(pageSize = ITEMS_PER_PAGE, enablePlaceholders = false),
+        pagingSourceFactory = { repository.pokemonPagingSource() }
+    )
+        .flow
+        // cachedIn allows paging to remain active in the viewModel scope, so even if the UI
+        // showing the paged data goes through lifecycle changes, pagination remains cached and
+        // the UI does not have to start paging from the beginning when it resumes.
+        .cachedIn(viewModelScope)
 }
