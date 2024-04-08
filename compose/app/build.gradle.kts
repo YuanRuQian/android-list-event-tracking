@@ -53,6 +53,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.coil.compose)
     implementation(libs.logging.interceptor)
     kapt(libs.hilt.compiler)

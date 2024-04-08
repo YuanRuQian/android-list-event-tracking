@@ -3,6 +3,7 @@ agp = "8.3.1"
 apolloRuntime = "4.0.0-beta.5"
 coilCompose = "2.6.0"
 hiltAndroid = "2.51.1"
+hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.0"
 coreKtx = "1.12.0"
 junit = "4.13.2"
@@ -18,6 +19,7 @@ picasso = "2.71828"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingRuntime" }
 apollo-runtime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apolloRuntime" }

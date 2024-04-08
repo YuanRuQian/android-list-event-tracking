@@ -13,7 +13,6 @@ object DataModule {
 
     @Provides
     fun providePokemons(): MutableLiveData<MutableList<GetPokemonsQuery.Result>> {
-        // Provide the list of Pokémon results here
         return MutableLiveData()
     }
 }
