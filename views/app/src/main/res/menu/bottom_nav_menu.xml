@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_precise_logging"
+        android:icon="@drawable/ic_precise_logging"
+        android:title="@string/precise_logging" />
+
+    <item
+        android:id="@+id/navigation_loose_logging"
+        android:icon="@drawable/ic_loose_logging"
+        android:title="@string/loose_logging" />
+</menu>

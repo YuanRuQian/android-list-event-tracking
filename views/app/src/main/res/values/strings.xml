@@ -4,4 +4,10 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="scroll_for_more_pokemons">Scroll for more Pokemons</string>
     <string name="loading_pokemons">Loading Pokemons...</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="precise_logging_title">Precise Logging</string>
+    <string name="loose_logging_title">Loose Logging</string>
+    <string name="precise_logging">Precise Logging</string>
+    <string name="loose_logging">Loose Logging</string>
 </resources>
